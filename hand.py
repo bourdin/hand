@@ -168,49 +168,53 @@ class Hand:
     def getFrameFromTXT(self,fp,frame = 0,header = 3,skip=3,sep = ','):
         ''' Initiate a hand object from a frame in a text file'''
 
+        frameFound = False
         fp.seek(0)
         for i, line in enumerate(fp):
             if i == header-1:
                 labels = [s.replace('.','').lower().rstrip()[1:] for s in line.split(sep)]
             if i == skip + frame:
+                frameFound = True
                 self.markers = np.array([float(i) for i in line.split(sep)]).reshape([26,3])
 
-                
-        self.RadProxArm = self.markers[labels.index('radproxarm_x')/3,:] 
-        self.UlnProxArm = self.markers[labels.index('ulnproxarm_x')/3,:] 
-        self.RadDisArm  = self.markers[labels.index('raddisarm_x')/3,:] 
-        self.UlnDisArm  = self.markers[labels.index('ulndisarm_x')/3,:] 
-        
-        self.ThumbCMC   = self.markers[labels.index('thumbcmc_x')/3,:] 
-        self.ThumbMCP   = self.markers[labels.index('thumbmcp_x')/3,:] 
-        self.ThumbPIP   = self.markers[labels.index('thumbpip_x')/3,:] 
-        self.ThumbTIP   = self.markers[labels.index('thumbtip_x')/3,:] 
+        if frameFound:        
+            self.RadProxArm = self.markers[labels.index('radproxarm_x')/3,:] 
+            self.UlnProxArm = self.markers[labels.index('ulnproxarm_x')/3,:] 
+            self.RadDisArm  = self.markers[labels.index('raddisarm_x')/3,:] 
+            self.UlnDisArm  = self.markers[labels.index('ulndisarm_x')/3,:] 
 
-        self.IndexCMC   = self.markers[labels.index('indexcmc_x')/3,:] 
-        self.IndexMCP   = self.markers[labels.index('indexmcp_x')/3,:] 
-        self.IndexPIP   = self.markers[labels.index('indexpip_x')/3,:] 
-        self.IndexDIP   = self.markers[labels.index('indexdip_x')/3,:] 
-        self.IndexTIP   = self.markers[labels.index('indextip_x')/3,:] 
+            self.ThumbCMC   = self.markers[labels.index('thumbcmc_x')/3,:] 
+            self.ThumbMCP   = self.markers[labels.index('thumbmcp_x')/3,:] 
+            self.ThumbPIP   = self.markers[labels.index('thumbpip_x')/3,:] 
+            self.ThumbTIP   = self.markers[labels.index('thumbtip_x')/3,:] 
 
-        self.MiddleMCP  = self.markers[labels.index('middlemcp_x')/3,:] 
-        self.MiddlePIP  = self.markers[labels.index('middlepip_x')/3,:] 
-        self.MiddleDIP  = self.markers[labels.index('middledip_x')/3,:] 
-        self.MiddleTIP  = self.markers[labels.index('middletip_x')/3,:] 
+            self.IndexCMC   = self.markers[labels.index('indexcmc_x')/3,:] 
+            self.IndexMCP   = self.markers[labels.index('indexmcp_x')/3,:] 
+            self.IndexPIP   = self.markers[labels.index('indexpip_x')/3,:] 
+            self.IndexDIP   = self.markers[labels.index('indexdip_x')/3,:] 
+            self.IndexTIP   = self.markers[labels.index('indextip_x')/3,:] 
 
-        self.RingMCP    = self.markers[labels.index('ringmcp_x')/3,:] 
-        self.RingPIP    = self.markers[labels.index('ringpip_x')/3,:] 
-        self.RingDIP    = self.markers[labels.index('ringdip_x')/3,:] 
-        self.RingTIP    = self.markers[labels.index('ringtip_x')/3,:] 
+            self.MiddleMCP  = self.markers[labels.index('middlemcp_x')/3,:] 
+            self.MiddlePIP  = self.markers[labels.index('middlepip_x')/3,:] 
+            self.MiddleDIP  = self.markers[labels.index('middledip_x')/3,:] 
+            self.MiddleTIP  = self.markers[labels.index('middletip_x')/3,:] 
 
-        self.LittleCMC  = self.markers[labels.index('littlecmc_x')/3,:] 
-        self.LittleMCP  = self.markers[labels.index('littlemcp_x')/3,:] 
-        self.LittlePIP  = self.markers[labels.index('littlepip_x')/3,:] 
-        self.LittleDIP  = self.markers[labels.index('littledip_x')/3,:] 
-        self.LittleTIP  = self.markers[labels.index('littletip_x')/3,:] 
-        
-        self.CMCVM = (self.IndexCMC + self.LittleCMC)/2.
-        self.computeAngles()
+            self.RingMCP    = self.markers[labels.index('ringmcp_x')/3,:] 
+            self.RingPIP    = self.markers[labels.index('ringpip_x')/3,:] 
+            self.RingDIP    = self.markers[labels.index('ringdip_x')/3,:] 
+            self.RingTIP    = self.markers[labels.index('ringtip_x')/3,:] 
 
+            self.LittleCMC  = self.markers[labels.index('littlecmc_x')/3,:] 
+            self.LittleMCP  = self.markers[labels.index('littlemcp_x')/3,:] 
+            self.LittlePIP  = self.markers[labels.index('littlepip_x')/3,:] 
+            self.LittleDIP  = self.markers[labels.index('littledip_x')/3,:] 
+            self.LittleTIP  = self.markers[labels.index('littletip_x')/3,:] 
+
+            self.CMCVM = (self.IndexCMC + self.LittleCMC)/2.
+            self.computeAngles()
+        else:
+            raise ValueError('Cannot find frame {0} in file'.format(frame))
+            
     def printAngles(self):
         print('Index:')
         print('\tAbduction:   {0:.2f} \t MCP Flexion:   {1:.2f}'.format(self.IndexAbductionAngle,self.IndexMCPFlexionAngle))
@@ -233,6 +237,70 @@ class Hand:
         
     def printThumbAnglesShort(self):
         print("{0:.2f}\t\t{1:.2f}\t\t{2:.2f}\t\t{3:.2f}".format(self.ThumbAbductionAngle,self.ThumbCMCFlexionAngle ,self.ThumbMCPFlexionAngle,self.ThumbPIPFlexionAngle ))
+        
+    def excelWriteHeaders(self):
+        import xlwt
+        book = xlwt.Workbook()
+        indexSheet  = book.add_sheet('Index')
+        middleSheet = book.add_sheet('Middle')
+        ringSheet   = book.add_sheet('Ring')
+        littleSheet = book.add_sheet('Little')
+        thumbSheet  = book.add_sheet('Thumb')
+        indexSheet.write(0,0,'Abduction')
+        indexSheet.write(0,1,'MCP Flexion')
+        indexSheet.write(0,2,'PIP Flexion')
+        indexSheet.write(0,3,'DIP Flexion')
+        middleSheet.write(0,0,'Abduction')
+        middleSheet.write(0,1,'MCP Flexion')
+        middleSheet.write(0,2,'PIP Flexion')
+        middleSheet.write(0,3,'DIP Flexion')
+        ringSheet.write(0,0,'Abduction')
+        ringSheet.write(0,1,'MCP Flexion')
+        ringSheet.write(0,2,'PIP Flexion')
+        ringSheet.write(0,3,'DIP Flexion')
+        littleSheet.write(0,0,'Abduction')
+        littleSheet.write(0,1,'MCP Flexion')
+        littleSheet.write(0,2,'PIP Flexion')
+        littleSheet.write(0,3,'DIP Flexion')
+        thumbSheet.write(0,0,'Abduction')
+        thumbSheet.write(0,1,'CMC Flexion')
+        thumbSheet.write(0,2,'MCP Flexion')
+        thumbSheet.write(0,3,'PIP Flexion')
+        return book
+
+    def excelWriteFrame(self,book,frame):
+        indexSheet  = book.get_sheet('Index')
+        indexSheet.write (frame+1,0,self.IndexAbductionAngle)
+        indexSheet.write (frame+1,1,self.IndexMCPFlexionAngle)
+        indexSheet.write (frame+1,2,self.IndexPIPFlexionAngle)
+        indexSheet.write (frame+1,3,self.IndexDIPFlexionAngle)
+
+        middleSheet  = book.get_sheet('Middle')
+        middleSheet.write (frame+1,0,self.MiddleAbductionAngle)
+        middleSheet.write (frame+1,1,self.MiddleMCPFlexionAngle)
+        middleSheet.write (frame+1,2,self.MiddlePIPFlexionAngle)
+        middleSheet.write (frame+1,3,self.MiddleDIPFlexionAngle)
+
+        
+        ringSheet = book.get_sheet('Ring')
+        ringSheet.write (frame+1,0,self.RingAbductionAngle)
+        ringSheet.write (frame+1,1,self.RingMCPFlexionAngle)
+        ringSheet.write (frame+1,2,self.RingPIPFlexionAngle)
+        ringSheet.write (frame+1,3,self.RingDIPFlexionAngle)
+
+        littleSheet = book.get_sheet('Little')
+        littleSheet.write (frame+1,0,self.LittleAbductionAngle)
+        littleSheet.write (frame+1,1,self.LittleMCPFlexionAngle)
+        littleSheet.write (frame+1,2,self.LittlePIPFlexionAngle)
+        littleSheet.write (frame+1,3,self.LittleDIPFlexionAngle)
+
+        thumbSheet = book.get_sheet('Thumb')
+        thumbSheet.write (frame+1,0,self.ThumbAbductionAngle)
+        thumbSheet.write (frame+1,1,self.ThumbCMCFlexionAngle)
+        thumbSheet.write (frame+1,2,self.ThumbMCPFlexionAngle)
+        thumbSheet.write (frame+1,3,self.ThumbPIPFlexionAngle)
+
+        
 
     def view(self,figsize=(5,5),markersize=5,linewidth=5):
         import matplotlib.pyplot as plt
